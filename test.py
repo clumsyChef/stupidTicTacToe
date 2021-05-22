@@ -1,5 +1,7 @@
 import os
 import copy
+import random
+import time
 
 allPosis = {
     "T-L": " ",
@@ -17,13 +19,7 @@ x = []
 o = []
 
 chance = 'X'
-
-gameOn = True
 played = 0
-
-winnings = [
-
-]
 
 def makeBox():
     print()
@@ -58,80 +54,100 @@ def checkWin(bajji):
             break
     
     if(won == False):
-        moveLength = len(list(allMoves.keys()))
-        if moveLength == 6:
+        if('T-L' in thisList and 'C-M' in thisList and 'B-R' in thisList):
             won = True
-
+        
+        if('T-R' in thisList and 'C-M' in thisList and 'B-L' in thisList):
+            won = True
 
     return won
 
 
-while gameOn:
-    remains = []
-    for k, v in allPosis.items():
-        if(v == " "):
-            remains.append(k)
 
-    makeBox()
-    remainingPosis = ', '.join(remains)
-    dashes = "-"*(len(remainingPosis) + 26 + 8 + 8) 
-    
-    print(f'''\n|{dashes}|
-|{" "*len(dashes)}|
-\tRemaining positions are : {remainingPosis}\t
-|{" "*len(dashes)}|
-|{dashes}|\n''')
-    
-    move = input(f"'{chance}' goes to :  ")
-    move = move.upper()
-    hasMove = allPosis.get(move, 0)
-    if(hasMove == 0):
-        print('''|------------------------------------------|
-|\t\t\t\t\t   |
-|\t Try again with valid value \t   |
-|\t\t\t\t\t   |
-|------------------------------------------|''')
-        continue
+def startGame():
+    global chance, played, x, o
+    while True:
+        remains = []
+        for k, v in allPosis.items():
+            if(v == " "):
+                remains.append(k)
+       
+        move = random.choice(remains)
+        move = move.upper()
+        hasMove = allPosis.get(move, 0)
+        if(hasMove == 0):
+            continue
 
-    if(allPosis[move] != " "):
-      
-        print('''|---------------------------|
-|                           |
-|   Already in use andhe!   |
-|                           |
-|---------------------------|''')
-        continue
-    
-    allPosis[move] = chance
-    played += 1
-
-    if(chance == 'O'):
-        o.append(move)
-        chance = 'X'
-    else:
-        x.append(move)
-        chance = 'O'
-
-    if(played > 4):
-        won = checkWin(chance)
+        if(allPosis[move] != " "):
+            continue
         
-        if(won):
-            winner = 'X' if chance == 'O' else 'O'
-            os.system('clear') 
-            makeBox()
+        allPosis[move] = chance
+        played += 1
 
-            print(f'''\t\t|------------------------------------------|
-\t\t|                                          |
-\t\t|              '{winner}' JEET GAYA               |    
-\t\t|                                          |
-\t\t|------------------------------------------|''')
+        if(chance == 'O'):
+            o.append(move)
+            chance = 'X'
+        else:
+            x.append(move)
+            chance = 'O'
+        
 
+        if(played > 4):
+            won = checkWin(chance)
+            if(won):
+                winner = 'X' if chance == 'O' else 'O'
+                return 'X' if winner == 'X' else 'O'
+                break
 
+        if(played == 9):
+            return "D"
             break
 
+
+#startGame()
+
+def makeBotsPlay():
+    global x, o, played, chance, allPosis
     
-    if(played == 9):
-        print("No one won, both are fucking idiots")
-        makeBox()
-        break
+
+    player_1 = 0
+    player_2 = 0
+    draw = 0
     
+    for i in range(100000):
+        x = []
+        o = []
+        chance = 'X'
+        played = 0
+        for j in allPosis.keys():
+            allPosis[j] = ' '
+
+        winner = startGame()
+        if(i % 2 == 0):
+            if (winner == 'X'):
+                player_1 += 1
+            elif (winner == 'O'):
+                player_2 += 1
+        else:
+            if (winner == 'X'):
+                player_2 += 1
+            elif (winner == 'O'):
+                player_1 += 1
+
+        if (winner == "D"):
+            draw += 1
+
+    print(f'''\n----------------------------------------------------------------------
+\n\t\t Player 1 : {player_1}
+\t\t Player 2 : {player_2}
+\t\t Draw : {draw}
+\n----------------------------------------------------------------------\n''')
+
+
+
+makeBotsPlay()
+
+
+
+
+
